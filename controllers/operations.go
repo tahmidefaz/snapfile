@@ -13,10 +13,13 @@ import (
 	
 	"github.com/tahmidefaz/snapfile/dbutils"
 	"github.com/tahmidefaz/snapfile/types"
+	"github.com/tahmidefaz/snapfile/misc"
 )
 
+var apiFilestore = misc.GetEnv("API_FILESTORE", "./filestore/")
+
 func UploadFile(c *gin.Context) {
-	save_dir := "./filestore/"
+	save_dir := apiFilestore
 
 	// Validate input
 	file, err := c.FormFile("file")
@@ -60,7 +63,7 @@ func UploadFile(c *gin.Context) {
 }
 
 func ServeFile(c *gin.Context) {
-	fileStore := "./filestore/"
+	fileStore := apiFilestore
 
 	url := c.Param("url")
 	var fileInfo types.DbModal
