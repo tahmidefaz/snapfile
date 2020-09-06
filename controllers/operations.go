@@ -15,31 +15,6 @@ import (
 	"../types"
 )
 
-func GetAll(c *gin.Context) {
-	var fileinfos []types.DbModal
-  	dbutils.DB.Find(&fileinfos)
-
-	c.JSON(http.StatusOK, gin.H{
-		"data": fileinfos,
-	})
-}
-
-
-func UploadFilename(c *gin.Context) {
-	// Validate input
-	var input types.FileInfo
-	if err := c.ShouldBindJSON(&input); err != nil {
-	  c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	  return
-	}
-  
-	// Create a filename
-	fileInfo := types.DbModal{FileName: input.FileName, MaxDownloads: input.MaxDownloads}
-	dbutils.DB.Create(&fileInfo)
-  
-	c.JSON(http.StatusOK, gin.H{"data": input})
-}
-
 func UploadFile(c *gin.Context) {
 	save_dir := "./filestore/"
 
@@ -89,6 +64,7 @@ func ServeFile(c *gin.Context) {
 
 	url := c.Param("url")
 	var fileInfo types.DbModal
+	
 	result := dbutils.DB.Where("url = ?", url).First(&fileInfo)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("%s", result.Error)})
@@ -111,6 +87,12 @@ func ServeFile(c *gin.Context) {
 		dbutils.DB.Delete(&fileInfo)
 		os.Remove(filepath)
 	}
+}
+
+func PingHealth(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
 }
 
 func genUniqueName() string {

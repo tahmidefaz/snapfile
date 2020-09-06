@@ -30,8 +30,5 @@ func DatabaseConnect() {
 
 	DB = db
 
-	// Create
-	// db.Create(&types.DbModal{FileName: "test_filename", MaxDownloads: 1})
-
 	fmt.Println("DB Migration Complete")
 }

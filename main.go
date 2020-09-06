@@ -15,11 +15,9 @@ func main() {
 
 	v1 := r.Group("/v1")
 	{
-		v1.GET("/ping", c.PingHealth)
-		v1.GET("/getall", c.GetAll)
-		v1.POST("/", c.UploadFilename)
 		v1.POST("/upload", c.UploadFile)
 		v1.GET("/download/:url", c.ServeFile)
+		v1.GET("/ping", c.PingHealth)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
