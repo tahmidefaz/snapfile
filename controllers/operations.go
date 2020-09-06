@@ -3,11 +3,15 @@ package controllers
 import (
 	"net/http"
 	"path/filepath"
-	"github.com/gin-gonic/gin"
-	"../dbutils"
-	"../types"
+	"encoding/base64"
 	"strconv"
 	"fmt"
+
+	"github.com/gin-gonic/gin"
+	"github.com/satori/go.uuid"
+	
+	"../dbutils"
+	"../types"
 )
 
 func GetAll(c *gin.Context) {
@@ -52,18 +56,18 @@ func UploadFile(c *gin.Context) {
 		preferredUrl = genUniqueName()
 	} else {
 		var fileinfos []types.DbModal
-		dbutils.DB.Where("file_name <> ?", preferredUrl).Find(&fileinfos)
+		dbutils.DB.Where("url = ?", preferredUrl).Find(&fileinfos)
 
+		fmt.Printf("Length: %d %s\n", len(fileinfos), preferredUrl)
 		if len(fileinfos) > 0 {
 			preferredUrl = genUniqueName()
 		}
-
-		fmt.Printf("Actual Url: %s", preferredUrl)
+		fmt.Printf("Length: %d %s\n", len(fileinfos), preferredUrl)
+		fmt.Println(fileinfos)
 	}
 
-	fileName := preferredUrl + filepath.Ext(file.Filename)
+	fileName := filepath.Base(preferredUrl + file.Filename)
 
-	fmt.Println(file.Filename)
 	fmt.Printf("Preferred URL: %s Max Downloads: %d File_Name: %s\n", preferredUrl, maxDownloads, fileName)
 
 	// Upload the file to specific dst.
@@ -71,13 +75,17 @@ func UploadFile(c *gin.Context) {
 	c.SaveUploadedFile(file, dst)
 
 	// save fileinfo
-	fileInfo := types.DbModal{FileName: fileName, MaxDownloads: maxDownloads}
+	fileInfo := types.DbModal{FileName: fileName, MaxDownloads: maxDownloads, Url: preferredUrl}
 	dbutils.DB.Create(&fileInfo)
 
-	message := fmt.Sprintf("%s uploaded successfully", file.Filename)
-	c.JSON(http.StatusOK, gin.H{"message": message})
+	fmt.Printf("%s uploaded successfully\n", fileName)
+
+	c.JSON(http.StatusOK, gin.H{"url": preferredUrl})
 }
 
 func genUniqueName() string {
-	return "unique_name"
+	// fmt.Println(base64.RawURLEncoding.EncodeToString(uuid.New()))
+	newUUID := uuid.Must(uuid.NewV4())
+	uuidString := base64.RawURLEncoding.EncodeToString(newUUID.Bytes())
+	return uuidString
 }
