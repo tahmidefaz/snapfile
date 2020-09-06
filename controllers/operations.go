@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"encoding/base64"
 	"strconv"
+	"os"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,12 @@ func UploadFile(c *gin.Context) {
 	  	return
 	}
 
-	maxDownloads, _ := strconv.Atoi(c.PostForm("max_downloads"))
+	maxDownloads, err := strconv.Atoi(c.PostForm("max_downloads"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	  	return
+	}
+
 	preferredUrl := c.PostForm("preferred_url")
 
 	if preferredUrl == "" {
@@ -58,12 +64,9 @@ func UploadFile(c *gin.Context) {
 		var fileinfos []types.DbModal
 		dbutils.DB.Where("url = ?", preferredUrl).Find(&fileinfos)
 
-		fmt.Printf("Length: %d %s\n", len(fileinfos), preferredUrl)
 		if len(fileinfos) > 0 {
 			preferredUrl = genUniqueName()
 		}
-		fmt.Printf("Length: %d %s\n", len(fileinfos), preferredUrl)
-		fmt.Println(fileinfos)
 	}
 
 	fileName := filepath.Base(preferredUrl + file.Filename)
@@ -78,13 +81,39 @@ func UploadFile(c *gin.Context) {
 	fileInfo := types.DbModal{FileName: fileName, MaxDownloads: maxDownloads, Url: preferredUrl}
 	dbutils.DB.Create(&fileInfo)
 
-	fmt.Printf("%s uploaded successfully\n", fileName)
-
 	c.JSON(http.StatusOK, gin.H{"url": preferredUrl})
 }
 
+func ServeFile(c *gin.Context) {
+	fileStore := "./filestore/"
+
+	url := c.Param("url")
+	var fileInfo types.DbModal
+	result := dbutils.DB.Where("url = ?", url).First(&fileInfo)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("%s", result.Error)})
+	  	return
+	}
+
+	filepath := fileStore + fileInfo.FileName
+
+	c.Header("Content-Description", "File Transfer")
+    c.Header("Content-Transfer-Encoding", "binary")
+    c.Header("Content-Disposition", "attachment; filename="+fileInfo.FileName)
+	c.Header("Content-Type", "application/octet-stream")
+
+	c.File(filepath)
+
+	if fileInfo.MaxDownloads > 1 {
+		fileInfo.MaxDownloads -= 1
+		dbutils.DB.Save(&fileInfo)
+	} else {
+		dbutils.DB.Delete(&fileInfo)
+		os.Remove(filepath)
+	}
+}
+
 func genUniqueName() string {
-	// fmt.Println(base64.RawURLEncoding.EncodeToString(uuid.New()))
 	newUUID := uuid.Must(uuid.NewV4())
 	uuidString := base64.RawURLEncoding.EncodeToString(newUUID.Bytes())
 	return uuidString
