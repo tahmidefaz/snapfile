@@ -4,17 +4,18 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/driver/postgres"
 	"github.com/tahmidefaz/snapfile/types"
+	"github.com/tahmidefaz/snapfile/misc"
 	"fmt"
 )
 
 var DB *gorm.DB
 
-const (
-    host     = "192.168.99.100"
-    port     = "5432"
-    user     = "snapfile"
-    password = "snapfile"
-    dbname   = "snapfile"
+var (
+    host     = misc.GetEnv("DB_HOST","0.0.0.0")
+    port     = misc.GetEnv("DB_PORT", "5432")
+    user     = misc.GetEnv("DB_USER", "snapfile")
+    password = misc.GetEnv("DB_PASSWORD", "snapfile")
+    dbname   = misc.GetEnv("DB_NAME", "snapfile")
 )
 
 func DatabaseConnect() {
