@@ -3,7 +3,7 @@ package dbutils
 import (
 	"gorm.io/gorm"
 	"gorm.io/driver/postgres"
-	"../types"
+	"github.com/tahmidefaz/snapfile/types"
 	"fmt"
 )
 

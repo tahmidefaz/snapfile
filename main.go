@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"./dbutils"
+	"github.com/tahmidefaz/snapfile/dbutils"
 	c "./controllers"
 )
 

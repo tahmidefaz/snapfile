@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
 	
-	"../dbutils"
-	"../types"
+	"github.com/tahmidefaz/snapfile/dbutils"
+	"github.com/tahmidefaz/snapfile/types"
 )
 
 func UploadFile(c *gin.Context) {
@@ -64,7 +64,7 @@ func ServeFile(c *gin.Context) {
 
 	url := c.Param("url")
 	var fileInfo types.DbModal
-	
+
 	result := dbutils.DB.Where("url = ?", url).First(&fileInfo)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("%s", result.Error)})
