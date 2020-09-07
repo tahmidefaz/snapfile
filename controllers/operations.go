@@ -1,19 +1,19 @@
 package controllers
 
 import (
-	"net/http"
-	"path/filepath"
 	"encoding/base64"
-	"strconv"
-	"os"
 	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
-	
+
 	"github.com/tahmidefaz/snapfile/dbutils"
-	"github.com/tahmidefaz/snapfile/types"
 	"github.com/tahmidefaz/snapfile/misc"
+	"github.com/tahmidefaz/snapfile/types"
 )
 
 var apiFilestore = misc.GetEnv("API_FILESTORE", "./filestore/")
@@ -25,13 +25,13 @@ func UploadFile(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	  	return
+		return
 	}
 
 	maxDownloads, err := strconv.Atoi(c.PostForm("max_downloads"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	  	return
+		return
 	}
 
 	preferredUrl := c.PostForm("preferred_url")
@@ -71,14 +71,14 @@ func ServeFile(c *gin.Context) {
 	result := dbutils.DB.Where("url = ?", url).First(&fileInfo)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("%s", result.Error)})
-	  	return
+		return
 	}
 
 	filepath := fileStore + fileInfo.FileName
 
 	c.Header("Content-Description", "File Transfer")
-    c.Header("Content-Transfer-Encoding", "binary")
-    c.Header("Content-Disposition", "attachment; filename="+fileInfo.FileName)
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.Header("Content-Disposition", "attachment; filename="+fileInfo.FileName)
 	c.Header("Content-Type", "application/octet-stream")
 
 	c.File(filepath)

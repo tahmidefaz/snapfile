@@ -1,21 +1,21 @@
 package dbutils
 
 import (
-	"gorm.io/gorm"
-	"gorm.io/driver/postgres"
-	"github.com/tahmidefaz/snapfile/types"
-	"github.com/tahmidefaz/snapfile/misc"
 	"fmt"
+	"github.com/tahmidefaz/snapfile/misc"
+	"github.com/tahmidefaz/snapfile/types"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
 var (
-    host     = misc.GetEnv("DB_HOST","0.0.0.0")
-    port     = misc.GetEnv("DB_PORT", "5432")
-    user     = misc.GetEnv("DB_USER", "snapfile")
-    password = misc.GetEnv("DB_PASSWORD", "snapfile")
-    dbname   = misc.GetEnv("DB_NAME", "snapfile")
+	host     = misc.GetEnv("DB_HOST", "0.0.0.0")
+	port     = misc.GetEnv("DB_PORT", "5432")
+	user     = misc.GetEnv("DB_USER", "snapfile")
+	password = misc.GetEnv("DB_PASSWORD", "snapfile")
+	dbname   = misc.GetEnv("DB_NAME", "snapfile")
 )
 
 func DatabaseConnect() {

@@ -1,15 +1,15 @@
 package main
 
 import (
+	c "./controllers"
 	"github.com/gin-gonic/gin"
 	"github.com/tahmidefaz/snapfile/dbutils"
-	c "./controllers"
 )
 
 func main() {
 	r := gin.Default()
 
-	r.MaxMultipartMemory = 50 << 20  // 50 MiB
+	r.MaxMultipartMemory = 50 << 20 // 50 MiB
 
 	dbutils.DatabaseConnect()
 
